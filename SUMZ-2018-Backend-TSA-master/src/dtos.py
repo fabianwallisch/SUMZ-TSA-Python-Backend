@@ -6,3 +6,4 @@ class JsonRequestKeys(Enum):
     NumberOfSamples = 'numSamples'
     TimeSeriesID = 'id'
     TimeSeriesValues = 'values'
+    

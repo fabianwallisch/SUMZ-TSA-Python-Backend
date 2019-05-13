@@ -1,0 +1,83 @@
+ {
+    "definitions": {},
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "title": "Schema for Time Series Analysis Request",
+    "required": [
+      "timeSeries",
+      "predSteps",
+      "numSamples"
+   ],
+   "properties": {
+     "timeSeries": {
+       "$id": "#/properties/timeSeries",
+       "type": "array",
+       "title": "The Timeseries Schema",
+	   "minItems": 1,
+       "items": {
+         "$id": "#/properties/timeSeries/items",
+         "type": "object",
+         "title": "The Items Schema",
+        "required": [
+           "id",
+           "values"
+         ],
+         "properties": {
+           "id": {
+             "$id": "#/properties/timeSeries/items/properties/id",
+             "type": "string",
+			 "minLength": 1,
+             "title": "The Id Schema",
+             "default": "",
+             "examples": [
+               "id1"
+             ],
+             "pattern": "^(.*)$"
+           },
+           "values": {
+            "$id": "#/properties/timeSeries/items/properties/values",
+             "type": "array",
+             "title": "The Values Schema",
+			 "minItems": 2,
+             "items": {
+               "$id": "#/properties/timeSeries/items/properties/values/items",
+               "type": "number",
+			   "minimum": 0,
+               "title": "The Items Schema",
+               "default": 0,
+               "examples": [
+                 30,
+                 40,
+                 50,
+                 60,
+                 70
+               ]
+             }
+          }
+         }
+       }
+     },
+     "predSteps": {
+      "$id": "#/properties/predSteps",
+       "type": "integer",
+       "title": "The Predsteps Schema",
+       "default": 0,
+	   "minimum": 1,
+	   "maximum": 20,
+       "examples": [
+         5
+       ]
+     },
+     "numSamples": {
+       "$id": "#/properties/numSamples",
+       "type": "integer",
+       "title": "The Numsamples Schema",
+       "default": 0,
+	   "minimum": 1,
+	   "maximum":500,
+       "examples": [
+         1
+       ]
+     }
+   }
+ }
