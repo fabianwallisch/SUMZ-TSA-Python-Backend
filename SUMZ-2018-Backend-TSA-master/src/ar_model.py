@@ -1,6 +1,7 @@
 from statsmodels.tsa.ar_model import AR
 import numpy as np
 
+#This is obsolete due to new implementation
 
 def predict(time_series, pred_steps, num_samples):
     result = []
