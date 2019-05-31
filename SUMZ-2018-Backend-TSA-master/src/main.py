@@ -25,24 +25,52 @@ def make_predictions():
         #this is to validate the request
         check(json, loadSchema(schemaFileName))
         
-        tsaRequest.TimeSeriesID = json[JsonRequestKeys.TimeSeriesID.value]
         tsaRequest.TimeSeriesValues = json[JsonRequestKeys.TimeSeriesValues.value]
         tsaRequest.PredictionSteps = json[JsonRequestKeys.PredictionSteps.value]
-        tsaRequest.Order = json[JsonRequestKeys.Order.value]
-        tsaRequest.SeasonalOrder = json[JsonRequestKeys.SeasonalOrder.value]
     except FileNotFoundError:
         abort(500, "Schema for request validation not found")
     except Exception as e:
         abort(400, str(e))
         
     try:
-        #creating the forecast with the predict function of the sarima.py
-        tsaResponse.Forecast = predict(timeSeriesValues=tsaRequest.TimeSeriesValues, pred_steps=tsaRequest.PredictionSteps, order=tsaRequest.Order, seasonal_order=tsaRequest.SeasonalOrder)
+        tsaRequest.Order = json[JsonRequestKeys.Order.value]
+        #if order is provided:
+        try:
+            tsaRequest.SeasonalOrder = json[JsonRequestKeys.SeasonalOrder.value]
+            #if seasonal order & order are provided:
+            try:
+                #creating the forecast with the predict function of the sarima.py
+                tsaResponse.Forecast = predict(tsaRequest.TimeSeriesValues, tsaRequest.PredictionSteps, order=tsaRequest.Order, seasonal_order=tsaRequest.SeasonalOrder)
+            except Exception as e:
+                abort(500, "Error during modeling process - " + str(e))
+        except Exception as e:
+            #if only order but not seasonalOrder is provided:
+            try:
+                #creating the forecast with the predict function of the sarima.py
+                tsaResponse.Forecast = predict(tsaRequest.TimeSeriesValues, tsaRequest.PredictionSteps, order=tsaRequest.Order)
+            except Exception as e:
+                abort(500, "Error during modeling process - " + str(e))
+        
     except Exception as e:
-        abort(500, "Error during modeling process - " + str(e))
-
+        #if order is not provided:
+        try:
+            tsaRequest.SeasonalOrder = json[JsonRequestKeys.SeasonalOrder.value]
+            #if seasonalOrder but not order is provided:
+            try:
+                #creating the forecast with the predict function of the sarima.py
+                tsaResponse.Forecast = predict(tsaRequest.TimeSeriesValues, tsaRequest.PredictionSteps, seasonal_order=tsaRequest.SeasonalOrder)
+            except Exception as e:
+                abort(500, "Error during modeling process - " + str(e))
+        except Exception as e:
+            #if neither order nor seasonalOrder is provided:
+            try:
+                #creating the forecast with the predict function of the sarima.py
+                tsaResponse.Forecast = predict(tsaRequest.TimeSeriesValues, tsaRequest.PredictionSteps)
+            except Exception as e:
+                abort(500, "Error during modeling process - " + str(e))
+        
     #returning the result as json
-    return jsonify(id=tsaResponse.TimeSeriesID, forecast=tsaResponse.Forecast.tolist())
+    return jsonify(values=tsaResponse.Forecast.tolist())
 
 @app.errorhandler(Exception)
 def global_exception_handler(error):

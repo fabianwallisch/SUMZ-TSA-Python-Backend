@@ -4,24 +4,10 @@
     "type": "object",
     "title": "Schema for Time Series Analysis Request",
     "required": [
-      "id",
 	  "values",
-      "predSteps",
-	  "order",
-	  "seasonalOrder"
+      "predSteps"
    ],
    "properties": {
-		"id": {
-             "$id": "#/properties/id",
-             "type": "string",
-			 "minLength": 1,
-             "title": "The Id Schema",
-             "default": "",
-             "examples": [
-               "id1"
-             ],
-             "pattern": "^(.*)$"
-        },
 		"values": {
             "$id": "#/properties/values",
              "type": "array",

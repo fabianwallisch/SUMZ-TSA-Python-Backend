@@ -5,11 +5,22 @@ from pmdarima import *
 
 #created by Fabian Wallisch WWI16
 
-def predict(timeSeriesValues, pred_steps, order, seasonal_order):
-     
+def predict(timeSeriesValues, pred_steps, **kwargs):
+    
+    order = kwargs.get('order', None)
+    seasonal_order = kwargs.get('seasonal_order', None)
+    
     #define the sarimax model; last param of seasonal order is frequency, e.g. 12=monthly
+    if order is None and seasonal_order is None:
+        model = SARIMAX(timeSeriesValues, enforce_stationarity=False)
+    if order is None and seasonal_order is not None:
+        model = SARIMAX(timeSeriesValues, seasonal_order=seasonal_order, enforce_stationarity=False)
+    if order is not None and seasonal_order is None:
+        model = SARIMAX(timeSeriesValues, order=order, enforce_stationarity=False)
+    if order is not None and seasonal_order is not None:
+        model = SARIMAX(timeSeriesValues, order=order, seasonal_order=seasonal_order, enforce_stationarity=False)
+     
     #model = pmdarima.arima.ARIMA(timeSeriesValues, order=order, seasonal_order=seasonalOrder, with_intercept=True)
-    model = SARIMAX(timeSeriesValues, order=order, seasonal_order=seasonal_order)
     
     #fitting the model, i.e. estimating the parameters
     model_fit = model.fit()

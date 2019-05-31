@@ -1,7 +1,6 @@
 from enum import Enum
 
 class JsonRequestKeys(Enum):
-    TimeSeriesID = 'id'
     TimeSeriesValues = 'values'
     PredictionSteps = 'predSteps'
     Order = 'order'
