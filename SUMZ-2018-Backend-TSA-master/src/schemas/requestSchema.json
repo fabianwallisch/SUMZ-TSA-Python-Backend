@@ -6,7 +6,9 @@
     "required": [
       "id",
 	  "values",
-      "predSteps"
+      "predSteps",
+	  "order",
+	  "seasonalOrder"
    ],
    "properties": {
 		"id": {

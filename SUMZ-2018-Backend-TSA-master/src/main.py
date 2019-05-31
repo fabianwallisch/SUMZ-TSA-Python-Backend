@@ -1,7 +1,8 @@
 from flask import Flask, request, abort, jsonify
 from sarima import predict
-import dtos
+from dtos import TSARequest, TSAResponse, JsonRequestKeys
 from checkRequest import check, loadSchema
+import numpy
 
 #modified by Fabian Wallisch WWI16
 
@@ -27,49 +28,21 @@ def make_predictions():
         tsaRequest.TimeSeriesID = json[JsonRequestKeys.TimeSeriesID.value]
         tsaRequest.TimeSeriesValues = json[JsonRequestKeys.TimeSeriesValues.value]
         tsaRequest.PredictionSteps = json[JsonRequestKeys.PredictionSteps.value]
+        tsaRequest.Order = json[JsonRequestKeys.Order.value]
+        tsaRequest.SeasonalOrder = json[JsonRequestKeys.SeasonalOrder.value]
     except FileNotFoundError:
-        abort(500, "schema for request validation not found")
-    except Exception:
-        abort(400, "invalid json input")
+        abort(500, "Schema for request validation not found")
+    except Exception as e:
+        abort(400, str(e))
         
     try:
-        tsaRequest.Order = json[JsonRequestKeys.Order.value]
-
-        try:
-            tsaRequest.SeasonalOrder = json[JsonRequestKeys.SeasonalOrder.value]
-            
-            try:
-                #creating the model with the predict function of the sarima.py
-                tsaResponse.Forecast = predict(timeSeriesID=tsaRequest.TimeSeriesID, timeSeriesValues=tsaRequest.TimeSeriesValues, pred_steps=tsaRequest.PredictionSteps, order=tsaRequest.Order, seasonalOrder=tsaRequest.SeasonalOrder)
-            except Exception as e:
-                abort(500, "Error during modeling process - " + str(e))
-                
-        except Exception:
-            try:
-                #creating the model with the predict function of the sarima.py
-                tsaResponse.Forecast = predict(timeSeriesID=tsaRequest.TimeSeriesID, timeSeriesValues=tsaRequest.TimeSeriesValues, pred_steps=tsaRequest.PredictionSteps, order=tsaRequest.Order)
-            except Exception as e:
-                abort(500, "Error during modeling process - " + str(e))
-        
-    except Exception:
-        try:
-            tsaRequest.SeasonalOrder = json[JsonRequestKeys.SeasonalOrder.value]
-            
-            try:
-                #creating the model with the predict function of the sarima.py
-                tsaResponse.Forecast = predict(timeSeriesID=tsaRequest.TimeSeriesID, timeSeriesValues=tsaRequest.TimeSeriesValues, pred_steps=tsaRequest.PredictionSteps, seasonalOrder=tsaRequest.SeasonalOrder)
-            except Exception as e:
-                abort(500, "Error during modeling process - " + str(e))
-                
-        except Exception:
-            try:
-                #creating the model with the predict function of the brownRozeff.py
-                tsaResponse.Forecast = predict(timeSeriesID=tsaRequest.TimeSeriesID, timeSeriesValues=tsaRequest.TimeSeriesValues, pred_steps=tsaRequest.PredictionSteps)
-            except Exception as e:
-                abort(500, "Error during modeling process - " + str(e))
+        #creating the forecast with the predict function of the sarima.py
+        tsaResponse.Forecast = predict(timeSeriesValues=tsaRequest.TimeSeriesValues, pred_steps=tsaRequest.PredictionSteps, order=tsaRequest.Order, seasonal_order=tsaRequest.SeasonalOrder)
+    except Exception as e:
+        abort(500, "Error during modeling process - " + str(e))
 
     #returning the result as json
-    return jsonify(id=tsaResponse.TimeSeriesID, forecast=tsaResponse.Forecast)
+    return jsonify(id=tsaResponse.TimeSeriesID, forecast=tsaResponse.Forecast.tolist())
 
 @app.errorhandler(Exception)
 def global_exception_handler(error):
