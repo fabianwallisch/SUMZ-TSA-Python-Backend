@@ -19,7 +19,8 @@ def predict(timeSeriesValues, pred_steps, **kwargs):
         model = SARIMAX(timeSeriesValues, order=order, enforce_stationarity=False)
     if order is not None and seasonal_order is not None:
         model = SARIMAX(timeSeriesValues, order=order, seasonal_order=seasonal_order, enforce_stationarity=False)
-     
+    
+    #alternative arima method 
     #model = pmdarima.arima.ARIMA(timeSeriesValues, order=order, seasonal_order=seasonalOrder, with_intercept=True)
     
     #fitting the model, i.e. estimating the parameters

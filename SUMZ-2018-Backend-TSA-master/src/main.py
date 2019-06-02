@@ -23,6 +23,7 @@ def make_predictions():
     
     try:
         #this is to validate the request
+        #TODO: check the schema / validation -> each key only once, ...
         check(json, loadSchema(schemaFileName))
         
         tsaRequest.TimeSeriesValues = json[JsonRequestKeys.TimeSeriesValues.value]
