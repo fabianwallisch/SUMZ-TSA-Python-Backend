@@ -18,6 +18,8 @@ def hello():
 def make_predictions():
     json = request.get_json()
     
+    print(json)
+    
     tsaRequest = TSARequest()
     tsaResponse = TSAResponse()
     
