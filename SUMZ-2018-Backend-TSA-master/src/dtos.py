@@ -18,5 +18,5 @@ class TSARequest():
 class TSAResponse():
     
     def __init__(self):
-        self.TimeSeriesID = ""
         self.Forecast = []
+        score = 0.0
