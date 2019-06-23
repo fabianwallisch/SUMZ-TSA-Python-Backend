@@ -52,4 +52,4 @@ def predict(timeSeriesValues, pred_steps, **kwargs):
         #calculation of the stderror
         fcastWithStdErrors[i][1] = (fcast.conf_int()[i][1] - fcast.conf_int()[i][0]) / (2 * norm.ppf(0.5 + 95 / 200))
         
-    return fcastWithStdErrors, score
+    return fcastWithStdErrors, score, model.order, model.seasonal_order

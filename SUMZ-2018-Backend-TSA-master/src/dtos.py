@@ -19,4 +19,6 @@ class TSAResponse():
     
     def __init__(self):
         self.Forecast = []
-        score = 0.0
+        self.score = 0.0
+        self.Order = []
+        self.SeasonalOrder = []

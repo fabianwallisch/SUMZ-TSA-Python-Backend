@@ -43,14 +43,14 @@ def make_predictions():
             #if seasonal order & order are provided:
             try:
                 #creating the forecast with the predict function of the sarima.py
-                tsaResponse.Forecast, tsaResponse.score = predict(tsaRequest.TimeSeriesValues, tsaRequest.PredictionSteps, order=tsaRequest.Order, seasonal_order=tsaRequest.SeasonalOrder)
+                tsaResponse.Forecast, tsaResponse.Score, tsaResponse.Order, tsaResponse.SeasonalOrder = predict(tsaRequest.TimeSeriesValues, tsaRequest.PredictionSteps, order=tsaRequest.Order, seasonal_order=tsaRequest.SeasonalOrder)
             except Exception as e:
                 abort(500, "Error during modeling process - " + str(e))
         except Exception as e:
             #if only order but not seasonalOrder is provided:
             try:
                 #creating the forecast with the predict function of the sarima.py
-                tsaResponse.Forecast, tsaResponse.score = predict(tsaRequest.TimeSeriesValues, tsaRequest.PredictionSteps, order=tsaRequest.Order)
+                tsaResponse.Forecast, tsaResponse.Score, tsaResponse.Order, tsaResponse.SeasonalOrder = predict(tsaRequest.TimeSeriesValues, tsaRequest.PredictionSteps, order=tsaRequest.Order)
             except Exception as e:
                 abort(500, "Error during modeling process - " + str(e))
         
@@ -61,23 +61,25 @@ def make_predictions():
             #if seasonalOrder but not order is provided:
             try:
                 #creating the forecast with the predict function of the sarima.py
-                tsaResponse.Forecast, tsaResponse.score = predict(tsaRequest.TimeSeriesValues, tsaRequest.PredictionSteps, seasonal_order=tsaRequest.SeasonalOrder)
+                tsaResponse.Forecast, tsaResponse.Score, tsaResponse.Order, tsaResponse.SeasonalOrder = predict(tsaRequest.TimeSeriesValues, tsaRequest.PredictionSteps, seasonal_order=tsaRequest.SeasonalOrder)
             except Exception as e:
                 abort(500, "Error during modeling process - " + str(e))
         except Exception as e:
             #if neither order nor seasonalOrder is provided:
             try:
                 #creating the forecast with the predict function of the sarima.py
-                tsaResponse.Forecast, tsaResponse.score = predict(tsaRequest.TimeSeriesValues, tsaRequest.PredictionSteps)
+                tsaResponse.Forecast, tsaResponse.Score, tsaResponse.Order, tsaResponse.SeasonalOrder = predict(tsaRequest.TimeSeriesValues, tsaRequest.PredictionSteps)
             except Exception as e:
                 abort(500, "Error during modeling process - " + str(e))
         
             
     print(tsaResponse.Forecast)
-    print(tsaResponse.score)
+    print(tsaResponse.Score)
+    print(tsaResponse.Order)
+    print(tsaResponse.SeasonalOrder)
     
     #returning the result as json in format [forecast, stderror]
-    return jsonify(values=tsaResponse.Forecast, score=tsaResponse.score)
+    return jsonify(values=tsaResponse.Forecast, score=tsaResponse.Score, order=tsaResponse.Order, seasonalOrder = tsaResponse.SeasonalOrder)
 
 @app.errorhandler(Exception)
 def global_exception_handler(error):
