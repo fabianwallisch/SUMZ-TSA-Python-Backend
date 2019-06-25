@@ -71,8 +71,14 @@ def make_predictions():
                 tsaResponse.Forecast, tsaResponse.Score, tsaResponse.Order, tsaResponse.SeasonalOrder = predict(tsaRequest.TimeSeriesValues, tsaRequest.PredictionSteps)
             except Exception as e:
                 abort(500, "Error during modeling process - " + str(e))
-        
-            
+                
+    if tsaRequest.Order and not numpy.array_equal(tsaRequest.Order, tsaResponse.Order):
+        abort(500, "Can't match order to requested order - use more observations - at least 17 for Brown Rozeff")
+         
+    if tsaRequest.SeasonalOrder and not numpy.array_equal(tsaRequest.SeasonalOrder, tsaResponse.SeasonalOrder):
+        abort(500, "Can't match seasonal order to requested seasonal order - use more observations - at least 17 for Brown Rozeff")
+    print("orders are correct")
+          
     print(tsaResponse.Forecast)
     print(tsaResponse.Score)
     print(tsaResponse.Order)
