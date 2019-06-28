@@ -3,6 +3,7 @@ from sarima import predict
 from dtos import TSARequest, TSAResponse, JsonRequestKeys
 from checkRequest import check, loadSchema
 import numpy
+import statsmodels.api as sm
 
 #modified by Fabian Wallisch WWI16
 
@@ -43,32 +44,34 @@ def make_predictions():
             #if seasonal order & order are provided:
             try:
                 #creating the forecast with the predict function of the sarima.py
-                tsaResponse.Forecast, tsaResponse.Score, tsaResponse.Order, tsaResponse.SeasonalOrder = predict(tsaRequest.TimeSeriesValues, tsaRequest.PredictionSteps, order=tsaRequest.Order, seasonal_order=tsaRequest.SeasonalOrder)
+                tsaResponse.Forecast, tsaResponse.Score, tsaResponse.Order, tsaResponse.SeasonalOrder = predict(tsaRequest.TimeSeriesValues, tsaRequest.PredictionSteps, tsaRequest.Order, seasonal_order=tsaRequest.SeasonalOrder)
             except Exception as e:
                 abort(500, "Error during modeling process - " + str(e))
         except Exception as e:
             #if only order but not seasonalOrder is provided:
             try:
                 #creating the forecast with the predict function of the sarima.py
-                tsaResponse.Forecast, tsaResponse.Score, tsaResponse.Order, tsaResponse.SeasonalOrder = predict(tsaRequest.TimeSeriesValues, tsaRequest.PredictionSteps, order=tsaRequest.Order)
+                tsaResponse.Forecast, tsaResponse.Score, tsaResponse.Order, tsaResponse.SeasonalOrder = predict(tsaRequest.TimeSeriesValues, tsaRequest.PredictionSteps, tsaRequest.Order)
             except Exception as e:
                 abort(500, "Error during modeling process - " + str(e))
         
     except Exception as e:
-        #if order is not provided:
+        #if order is not provided we have to estimate a suitable order using the aic
+        res = sm.tsa.arma_order_select_ic(tsaRequest.TimeSeriesValues, ic=['aic'], trend='c')
+        tsaRequest.Order = [int(res.aic_min_order[0]), 0, int(res.aic_min_order[1])]
         try:
             tsaRequest.SeasonalOrder = json[JsonRequestKeys.SeasonalOrder.value]
             #if seasonalOrder but not order is provided:
             try:
                 #creating the forecast with the predict function of the sarima.py
-                tsaResponse.Forecast, tsaResponse.Score, tsaResponse.Order, tsaResponse.SeasonalOrder = predict(tsaRequest.TimeSeriesValues, tsaRequest.PredictionSteps, seasonal_order=tsaRequest.SeasonalOrder)
+                tsaResponse.Forecast, tsaResponse.Score, tsaResponse.Order, tsaResponse.SeasonalOrder = predict(tsaRequest.TimeSeriesValues, tsaRequest.PredictionSteps, tsaRequest.Order, seasonal_order=tsaRequest.SeasonalOrder)
             except Exception as e:
                 abort(500, "Error during modeling process - " + str(e))
         except Exception as e:
             #if neither order nor seasonalOrder is provided:
             try:
                 #creating the forecast with the predict function of the sarima.py
-                tsaResponse.Forecast, tsaResponse.Score, tsaResponse.Order, tsaResponse.SeasonalOrder = predict(tsaRequest.TimeSeriesValues, tsaRequest.PredictionSteps)
+                tsaResponse.Forecast, tsaResponse.Score, tsaResponse.Order, tsaResponse.SeasonalOrder = predict(tsaRequest.TimeSeriesValues, tsaRequest.PredictionSteps, tsaRequest.Order)
             except Exception as e:
                 abort(500, "Error during modeling process - " + str(e))
                 
